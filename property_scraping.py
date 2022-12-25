@@ -111,6 +111,7 @@ dt_now = datetime.datetime.now().strftime('%Y%m%d')
 # csvファイルとして保存
 df.to_csv(dt_now +'rakumati.csv', sep = ',',encoding='utf-8-sig')
 
+print('---*50')
 print('finish')
 
 
