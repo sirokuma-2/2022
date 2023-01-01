@@ -6,11 +6,15 @@ import re
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
+import mysql.connector
 import seaborn as sns
 import datetime
 sns.set()
 mpl.rcParams['font.family'] = 'AppleGothic'
 import urllib.request
+
+dt_now = datetime.datetime.now().strftime('%Y%m%d')
+
 
 
 # 楽待　不動産情報　埼玉県全域
@@ -111,9 +115,86 @@ dt_now = datetime.datetime.now().strftime('%Y%m%d')
 # csvファイルとして保存
 df.to_csv(dt_now +'rakumati.csv', sep = ',',encoding='utf-8-sig')
 
-print('---*70')
+
+#データクリーニング
+df = pd.read_csv(dt_now +'rakumati.csv')
+df = df.replace( '\n', '', regex=True)
+df=df.fillna(0)
+df.to_csv(dt_now+'rakumati2.csv', sep = ',',encoding='utf-8-sig')
+
+df = pd.read_csv(dt_now+'rakumati2.csv')
+df=df.drop(df.columns[[0,1]], axis=1)
+df_2=df.copy()
+
+#建物面積に０がある行を削除
+df_2=df_2[(df_2['建物面積'] != '0')]
+df_2=df_2[(df_2['最寄駅'].str.contains('徒歩',na=False))]
+
+df_2[['建物面積','土地面積']] =df_2[['建物面積','土地面積']].fillna('0')
+
+# 文字列を複数文字で split
+df_2['都県'] = df_2['住所'].apply(lambda x: re.split('[県]', x)[0]) 
+df_2['市区'] = df_2['住所'].apply(lambda x: re.split('[都県市区]', x)[1]) 
+
+def conver_val(x):
+    if len(re.split('[万億]', x)) == 2:
+        value = re.split('[万億]', x)[0]
+    elif len(re.split('[万億]', x)) == 3:
+        value = re.split('[億万]', x)[0] + re.split('[億万]', x)[1] 
+    return int(value)
+
+# 文字列を複数文字で split
+df_2['価格(万円)'] = df_2['価格'].apply(lambda x: conver_val(x)) 
+
+# 文字列を複数文字で split
+df_2['利回り'] = df_2['利回り'].apply(lambda x: re.split('[%]', x)[0]) 
+
+# 文字列を複数文字で split
+df_2['建物面積(㎡)'] = df_2['建物面積'].apply(lambda x: re.split('㎡', x)[0])
+#df_2['土地面積(㎡)'] = df_2['土地面積(㎡)'].apply(lambda x: x.split('線')[0])
+df_2['土地面積(㎡)'] = df_2['土地面積'].apply(lambda x: re.split('㎡', x)[0])
+df_2['建物面積(㎡)']= df_2['建物面積(㎡)'].apply(lambda x: x.split('㎡')[0])
+df_2['土地面積(㎡)']= df_2['土地面積(㎡)'].apply(lambda x: x.split('㎡')[0])
+
+# 文字列を複数文字で split
+df_2['利回り(％)'] = df_2['利回り'].apply(lambda x: float(re.split('%', x)[0]))
+
+df_2=df_2.drop(df_2.columns[[4,]], axis=1)
+
+df_2['路線'] = df_2['最寄駅'].apply(lambda x: x.split('線')[0])
+df_2['駅名'] = df_2['最寄駅'].apply(lambda x: x.split('徒歩')[0])
+
+df_2['年数'] = df_2['築年数'].apply(lambda x: x.split('（')[0])
+df_2['年数２'] = df_2['築年数'].apply(lambda x: x.split('年')[0])
+
+
+#df_2['徒歩'] = df_2['最寄駅'].apply(lambda x: x.split('歩')[-1])
+df_2['徒歩'] = df_2['最寄駅'].apply(lambda x: x.split('歩')[-1])
+df_2['徒歩'] = df_2['徒歩'].apply(lambda x: x.split('分')[0])
+#df_2['徒歩'] = df_2['徒歩'].apply(lambda x: x.split('バス')[-1])
+
+
+drop_index = df_2[df_2['年数２'].str.contains('㎡')].index
+drop_index
+df_2=df_2.drop(drop_index,axis=0)
+
+df_2['年数２']=df_2['年数２'].astype(int)
+df_2['年数２']=2020-df_2['年数２']
+
+df_2['駅名'] = df_2['駅名'].apply(lambda x: x.split('線')[-1])
+df_2['戸数'] = df_2['戸数'].apply(lambda x: x.split('戸')[0]).astype(float)
+
+df_2 = df_2.rename(columns={'年数２': '築年数(年)'})
+
+df_2['築年数(年)'] = df_2['築年数(年)'] +3
+
+df_2.to_csv(dt_now+'data_mod.csv', sep = ',',encoding='utf-8-sig')
+
+df_2= pd.read_csv(dt_now+'data_mod.csv')
+df_2=df_2.drop(df_2.columns[[0,3,4,5,8,9,14,18]], axis=1)
+
+# 190行目の値がおかしい
+df_2 = df_2.drop(index = 190)
+df_2.to_csv(dt_now+'data_mod2.csv', sep = ',',encoding='utf-8-sig')
+
 print('finish')
-
-
-
-
