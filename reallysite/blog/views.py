@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from blog.models import Article
+from blog.models import Article,Comment,Tag
 from django.core.paginator import Paginator
+from blog.forms import CommentForm
 
 # Create your views here.
 
@@ -10,6 +11,7 @@ def index(request):
     paginator = Paginator(objs,2)
     page_number = request.GET.get('page')
     context={
+        'page_title':'ブログ一覧',
         'page_obj':paginator.get_page(page_number),
         'page_number':page_number,
     }
@@ -17,7 +19,42 @@ def index(request):
 
 def article(request,pk):
     obj = Article.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        if request.POST.get('like_count',None):
+            obj.count += 1
+            obj.save()
+        else:
+            form=CommentForm(request.POST)
+            if form.is_valid():
+                comment=form.save(commit=False)
+                comment.user = request.user
+                comment.article = obj
+                comment.save()
+
+    comments = Comment.objects.filter(article=obj)
     context={
-        'article':obj
+        'article':obj,
+        'comments':comments,
     }
+
     return render(request,'blog/article.html',context)
+
+def tags(request,slug):
+    tag = Tag.objects.get(slug=slug)
+    objs = tag.article_set.all()
+
+
+    paginator = Paginator(objs,10)
+    page_number = request.GET.get('page')
+    context={
+        'page_title':'#{}'.format(slug),
+        'page_obj':paginator.get_page(page_number),
+        'page_number':page_number,
+    }
+    return render(request,'blog/blogs.html',context)
+
+
+
+
+

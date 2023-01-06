@@ -1,3 +1,5 @@
+{% load static %}
+
 <aside class="col-md-4">
     <div class="p-4 mb-3 bg-light rounded">
         <h4 class="font-italic">
@@ -5,4 +7,21 @@
         </h4>
         <p class="mb-0">ようこそMy講座へ！</p>
     </div>
+
+    <figure class="figure">
+        <img class="figure-img img-fluid rounded" 
+        src="{% static 'mysite/img.jpg' %}">
+
+        <figcaption class="figure-caption text-center font-italic small">
+            <a href="https://pixabay.com/ja/users/pen_ash-5526837/
+            ?utm_source=link-attribution&amp;utm_medium=referral&amp;
+            utm_campaign=image&amp;utm_content=7469267">Penny</a>による
+            <a href="https://pixabay.com/ja//?utm_source=link-attribution&amp;
+            utm_medium=referral&amp;utm_campaign=image&amp;utm_content=7469267">
+            Pixabay</a>からの画像
+        </figcaption>
+
+    </figure>
+
+
 </aside>

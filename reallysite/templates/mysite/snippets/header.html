@@ -9,11 +9,14 @@
     <div class="py-1 mb-2">
         <nav class="nav d-flex justify-content-between">
             <a class="p-2 link-secondary" href="/blog/">ブログ</a>
-            <a class="p-2 link-secondary" href="#">お問い合わせ</a>
+            <a class="p-2 link-secondary" href="/contact/">お問い合わせ</a>
             
 
             {% if user.is_authenticated %}
+            <div>
             <a class = "p-2 link-secondary" href="/logout/">ログアウト</a>
+            <a class = "p-2 link-secondary" href="/mypage/">マイページ</a>
+            </div>
             {% else %}
 
             <div>
