@@ -26,19 +26,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-if os.getenv('GAE_APPLICATION',NONE):
-    #本番環境
-    ALLOWED_HOSTS = ['really-site-373823.an.r.appspot']
+
+if os.getenv('GAE_APPLICATION', None):
+    # GAE 本番環境
+    ALLOWED_HOSTS = ['really-site-373823.an.r.appspot.com']
 else:
-    #開発環境
-    DEBUG = True
+    # 開発環境
+    DEBUG = False
     ALLOWED_HOSTS = ['*']
     import yaml
-    with open(os.path.join(BASE_DIR,'secrets','secret_dev.yaml')) as file:
-      objs = yaml.safe_load(file)
-      for obj in objs:
-        os.environ[obj] = objs[obj]
-
+    with open(os.path.join(BASE_DIR, 'secrets', 'secret_dev.yaml')) as file:
+        objs = yaml.safe_load(file)
+        for obj in objs:
+            os.environ[obj] = objs[obj]
 # Application definition
 
 INSTALLED_APPS = [
@@ -92,12 +92,31 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if os.getenv('GAE_APPLICATION', None):
+    # GAE 本番環境
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['DB_NAME'],
+            'USER': os.environ['DB_USERNAME'],
+            'PASSWORD': os.environ['DB_USERPASS'],
+            'HOST': '/cloudsql/{}'.format(os.environ['DB_CONNECTION']),
+        }
     }
-}
+else:
+    # 開発環境
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['DB_NAME'],
+            'USER': os.environ['DB_USERNAME'],
+            'PASSWORD': os.environ['DB_USERPASS'],
+            'HOST': '127.0.0.1',
+            'PORT': '3306',
+        }
+    }
+
+
 
 
 # Password validation
@@ -116,9 +135,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ja-jp"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Tokyo"
 
 USE_I18N = True
 
@@ -130,9 +149,14 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+
 STATICFILES_DIRS= [
     os.path.join(BASE_DIR, 'static'),
     ]
+
+STATIC_ROOT= os.path.join(BASE_DIR, 'staticfiles')
+
+
 print(STATICFILES_DIRS)
 
 AUTH_USER_MODEL = "mysite.User"
