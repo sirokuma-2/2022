@@ -1,0 +1,10 @@
+{% load static %}
+
+{% for tag in article.tags.all %}
+    {% if 'html' in tag.name %} 
+
+    <a href="https://really-site-373823.an.r.appspot.com/">
+    <img src= "{% static 'mysite/banner.jpeg' %}" width="100%" height="auto">
+    </a>
+    {% endif %}
+{% endfor %}

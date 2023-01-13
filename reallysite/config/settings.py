@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
-from .settings_local import SECRET_KEY
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,8 +20,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -32,7 +30,7 @@ if os.getenv('GAE_APPLICATION', None):
     ALLOWED_HOSTS = ['really-site-373823.an.r.appspot.com']
 else:
     # 開発環境
-    DEBUG = False
+    DEBUG = True  # Falseするとstaticファイルが読み込まれない
     ALLOWED_HOSTS = ['*']
     import yaml
     with open(os.path.join(BASE_DIR, 'secrets', 'secret_dev.yaml')) as file:
@@ -40,6 +38,10 @@ else:
         for obj in objs:
             os.environ[obj] = objs[obj]
 # Application definition
+
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -147,17 +149,28 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
+
+STATIC_URL = '/static/'
 
 
 STATICFILES_DIRS= [
     os.path.join(BASE_DIR, 'static'),
     ]
+print(STATICFILES_DIRS)
 
 STATIC_ROOT= os.path.join(BASE_DIR, 'staticfiles')
 
+from google.oauth2 import service_account
 
-print(STATICFILES_DIRS)
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    os.path.join(BASE_DIR, 'secrets', os.environ['GCS_CREDENTIALS_FILENAME'])
+)
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+GS_BUCKET_NAME = os.environ['GCS_BUCKET_NAME']
+
+GS_PROJECT_ID = os.environ['GCS_PROJECT_ID']
 
 AUTH_USER_MODEL = "mysite.User"
 

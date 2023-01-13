@@ -13,6 +13,10 @@
             <div class = "my-4">{{article.text}}</div>
 
             <div>
+                {% include 'mysite/snippets/pr_in_article.html' %}
+            </div>
+
+            <div>
                 {% include 'mysite/snippets/like_count.html' %}
                 {% include 'mysite/snippets/tag.html' %}
             </div>

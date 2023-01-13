@@ -1,5 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+import os
+
+
+def upload_image_to(instance,filename):
+    user_id = str(instance.user.id)
+    return os.path.join('image',user_id,filename)
 
 class Profile(models.Model):
 
@@ -15,5 +21,7 @@ class Profile(models.Model):
     city = models.CharField(default = "",max_length =100)
 
     address = models.CharField(default = "",max_length =100)
+
+    image = models.ImageField(default = "", blank=True, upload_to=upload_image_to)
 
 

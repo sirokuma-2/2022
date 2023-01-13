@@ -9,8 +9,14 @@
             マイページ
         </h3>
 
-        <form class="row g-3" method="POST">
+        <form class="row g-3" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+           
+
+            {% include 'mysite/snippets/profile_image.html' %}
+
+
+
             <div class="col-12">
                 <label class="form-label">ユーザー名（公開されます）</label>
                 <input type="text" class="form-control" id="id_username" name="username" placeholder="佐藤 いなり" value="{{user.profile.username}}"">
