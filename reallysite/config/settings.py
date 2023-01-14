@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     'livereload',#livereload
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     'mysite',
     'blog',
 ]
@@ -206,3 +207,9 @@ EMAIL_HOST_USER=os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD=os.environ['EMAIL_HOST_PASSWORD']
 
 
+CACHES = {
+    'default': {
+            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+            'LOCATION': 'cache_table',
+    }
+}

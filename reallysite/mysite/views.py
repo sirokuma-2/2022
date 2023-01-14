@@ -9,8 +9,26 @@ from mysite.forms import UserCreationForm,ProfileForm
 from django.core.mail import send_mail
 import os
 
+from django.contrib.sitemaps import ping_google
+
+
+@login_required
+def ping(request):
+    try:
+        if request.user.is_admin:
+            ping_google()
+    except:
+        pass
+    return redirect('/')
+
 
 # Create your views here.
+def landing(request):
+    context={}
+    return render(request,'mysite/landing.html',context)
+
+
+
 
 def index(request):
     ranks = Article.objects.order_by('-count')[:2]#降順
@@ -204,5 +222,6 @@ class Payview(View):
             'charge': charge,
         }
         return render(request,'mysite/pay.html',context)
+
 
 
